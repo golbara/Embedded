@@ -1,0 +1,7 @@
+1 - convert audio.ogg to another binary type 
+2 -  playing audio(local) by the speaker 
+3 - get words using mqtt from server
+    3-1 subscribe broker and server 
+    3-2 mqtt dataset -> put our words
+    3-3 surver should be able to "read" from dataset and send publish words
+4- playing audio(recived from server) by speaker 
