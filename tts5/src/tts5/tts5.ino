@@ -1,10 +1,10 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <ArduinoJson.h>
-#include <Audio.h>
+#include <WiFiClientSecure.h>
+#include "AudioI2S.h"
 
-const char *ssid = "SG";
-const char *password = "pfdn2266";
+const char *ssid = "Mmm";
+const char *password = "ramzeshdoe";
 
 void setup() {
   Serial.begin(9600);
@@ -18,11 +18,10 @@ void setup() {
   Serial.println("Connected to WiFi");
 
   // Initialize the I2S interface for audio output
-  Audio.begin();
+  AudioI2S.begin();
 }
 
 void loop() {
-  // Get Persian text input (replace this with your input method)
   // Wait for user input from the Serial console
   while (!Serial.available()) {
     delay(100);
@@ -50,16 +49,16 @@ void loop() {
         int bytesRead;
 
         // Open the I2S connection for audio playback
-        Audio.i2s_output_begin();
+        AudioI2S.write(buffer, bufferSize);
 
         // Read and play the audio file
         while (http.connected() || http.available()) {
           bytesRead = http.readBytes(buffer, bufferSize);
-          Audio.write(buffer, bytesRead);
+          AudioI2S.write(buffer, bytesRead);
         }
 
         // Close the I2S connection
-        Audio.i2s_output_end();
+        AudioI2S.end();
       } else {
         Serial.println("Error in HTTP request. HTTP response code: " + String(httpResponseCode));
       }
