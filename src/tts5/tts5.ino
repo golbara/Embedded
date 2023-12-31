@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
-#include "AudioI2S.h"
+// #include "AudioI2S.h"
 
 const char *ssid = "Mmm";
 const char *password = "ramzeshdoe";
@@ -18,18 +18,18 @@ void setup() {
   Serial.println("Connected to WiFi");
 
   // Initialize the I2S interface for audio output
-  AudioI2S.begin();
+  // AudioI2S.begin();
 }
 
 void loop() {
-  // Wait for user input from the Serial console
+  // // Wait for user input from the Serial console
   while (!Serial.available()) {
     delay(100);
   }
 
   // Read the Persian text from the Serial console
   String persianText = Serial.readStringUntil('\n');
-  persianText.trim(); // Remove leading and trailing whitespaces
+  persianText.trim();  // Remove leading and trailing whitespaces
 
   if (persianText.length() > 0) {
     // Construct the TTS API URL
@@ -41,6 +41,8 @@ void loop() {
 
     if (http.begin(Url)) {
       int httpResponseCode = http.GET();
+      Strign payload = http.getString();
+      Serial.println("response is ok");
 
       if (httpResponseCode == HTTP_CODE_OK) {
         // Read the audio data into a buffer
@@ -76,5 +78,5 @@ void loop() {
     Serial.read();
   }
 
-  delay(5000); // Adjust the delay based on your needs
+  delay(5000);  // Adjust the delay based on your needs
 }
