@@ -17,23 +17,30 @@ cursor = conn.cursor()
 
 
 def read_text(id):
-    cursor.execute('SELECT type FROM {} WHERE id = ?'.format(table), (id,))
+    cursor.execute('SELECT text FROM {} WHERE id = ?'.format(table), (id,))
     result = cursor.fetchone()
     
     if result is not None:
-        type_value = result[0]
-        mqtt_client.publish(mqtt_topic, str(type_value))
+        text = result[0]
+        mqtt_client.publish(mqtt_topic, str(text))
+        print(text)
     else:
         mqtt_client.publish(mqtt_topic, 'invalidId')
 
 
 def on_connect(client, userdata, flags, rc):
+    print("hii")
     print('connect to code' + str(rc))
-    client.subscribe(mqtt_topic)
+    # client.subscribe(mqtt_topic)
+    number = len(data)
+    print(number)
+    for index in range(number):
+        read_text(index)
 
 
 def on_message(client, userdata, msg):
     number = len(data)
+    print(number)
     for index in range(number):
         read_text(index)
 
