@@ -1,32 +1,35 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <ArduinoJson.h>
-#include <Audio.h>
+#include <WiFiClientSecure.h>
+// #include "AudioI2S.h"
 
-const char *ssid = "SG";
-const char *password = "pfdn2266";
+const char *ssid = "Mmm";
+const char *password = "ramzeshdoe";
 
 void setup() {
   Serial.begin(9600);
+
+  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
-  Audio.begin();
+
+  // Initialize the I2S interface for audio output
+  // AudioI2S.begin();
 }
 
 void loop() {
-  // Get Persian text input (replace this with your input method)
-  // Wait for user input from the Serial console
+  // // Wait for user input from the Serial console
   while (!Serial.available()) {
     delay(100);
   }
 
   // Read the Persian text from the Serial console
   String persianText = Serial.readStringUntil('\n');
-  persianText.trim(); // Remove leading and trailing whitespaces
+  persianText.trim();  // Remove leading and trailing whitespaces
 
   if (persianText.length() > 0) {
     // Construct the TTS API URL
@@ -34,10 +37,12 @@ void loop() {
     Url += persianText;
     Serial.println("Requesting TTS from: " + Url);
 
-    HTTPClient http;
+    HTTPClient http;c:\Users\LENOVO\Desktop\Embedded\src\main.cpp
 
     if (http.begin(Url)) {
       int httpResponseCode = http.GET();
+      Strign payload = http.getString();
+      Serial.println("response is ok");
 
       if (httpResponseCode == HTTP_CODE_OK) {
         // Read the audio data into a buffer
@@ -46,16 +51,16 @@ void loop() {
         int bytesRead;
 
         // Open the I2S connection for audio playback
-        Audio.i2s_output_begin();
+        AudioI2S.write(buffer, bufferSize);
 
         // Read and play the audio file
         while (http.connected() || http.available()) {
           bytesRead = http.readBytes(buffer, bufferSize);
-          Audio.write(buffer, bytesRead);
+          AudioI2S.write(buffer, bytesRead);
         }
 
         // Close the I2S connection
-        Audio.i2s_output_end();
+        AudioI2S.end();
       } else {
         Serial.println("Error in HTTP request. HTTP response code: " + String(httpResponseCode));
       }
@@ -73,5 +78,5 @@ void loop() {
     Serial.read();
   }
 
-  delay(5000); // Adjust the delay based on your needs
+  delay(5000);  // Adjust the delay based on your needs
 }
