@@ -8,8 +8,12 @@ mqtt_topic = 'speech'
 mqtt_user = 'emqx'
 mqtt_password = 'public'
 
-database = 'tts_mqtt.db'
-table = 'textdata'
+# database = 'tts_mqtt.db'
+database = 'db.sqlite3'
+
+# table = 'textdata'
+table = 'tts_prompt'
+
 
 
 conn = sqlite3.connect(database)
@@ -38,18 +42,18 @@ def on_connect(client, userdata, flags, rc):
         read_text(index)
 
 
-def on_message(client, userdata, msg):
-    number = len(data)
-    print(number)
-    for index in range(number):
-        read_text(index)
+# def on_message(client, userdata, msg):
+#     number = len(data)
+#     print(number)
+#     for index in range(number):
+#         read_text(index)
 
 
 mqtt_client = mqtt.Client()
 
 
 mqtt_client.on_connect = on_connect
-mqtt_client.on_message = on_message
+# mqtt_client.on_message = on_message
 
 mqtt_client.connect(mqtt_broker, mqtt_port, 60)
 
