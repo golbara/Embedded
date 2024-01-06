@@ -5,18 +5,18 @@
 #include "FS.h"
 
 // Digital I/O used
-#define SD_CS 5
-#define SPI_MOSI 23
-#define SPI_MISO 19
-#define SPI_SCK 18
+// #define SD_CS 5
+// #define SPI_MOSI 23
+// #define SPI_MISO 19
+// #define SPI_SCK 18
 #define I2S_DOUT 25
 #define I2S_BCLK 27
 #define I2S_LRC 26
 
 Audio audio;
 
-const char* ssid = "Mmm";
-const char* password = "ramzeshdoe";
+String ssid = "Mmm";
+String password = "ramzeshdoe";
 
 void setup()
 {
@@ -28,10 +28,9 @@ void setup()
         Serial.println("Connecting...");
         delay(1500);
     }
-      Serial.println("Connected");
     Serial.println("Coneected to wifi");
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(21); 
+    audio.setVolume(20); 
 }
 
 void CallApi()
@@ -40,9 +39,9 @@ void CallApi()
     {
         delay(100);
     }
-
-    Serial.println("test 3");
-    String persianText = Serial.readStringUntil('\n');
+    Serial.println("testing...");
+    // String persianText = Serial.readStringUntil('\n');
+    String persianText = "salam golbarg";
     persianText.trim(); 
 
     if (persianText.length() > 0)
@@ -59,3 +58,4 @@ void loop()
     CallApi();
     audio.loop();
 }
+
