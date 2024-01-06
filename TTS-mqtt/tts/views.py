@@ -62,6 +62,8 @@ class promptAPIView(APIView):
             serializer.save()
             mqtt_client.publish(mqtt_topic, serializer.data['text'])  # Use serializer.data
             print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+            print(serializer.data['text'])
+            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
             print("sent")
             # Redirect to the same page with a success query parameter
             return redirect(reverse('tts:prompt') + '?success=true')
