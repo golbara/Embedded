@@ -46,18 +46,6 @@ def read_text(id):
     else:
         mqtt_client.publish(mqtt_topic, 'invalidId')
 
-# class promptAPIView(APIView):
-#     def get(self, request):
-#         form = promptForm()  # Create an instance of the form
-#         return render(request, 'form.html', {'form': form})
-
-#     def post(self, request, format=None):
-#         serializer = PromptSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             mqtt_client.publish(mqtt_topic, serializer.data['text'])  # Use serializer.data
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # promptAPIView
 from django.shortcuts import render, redirect
