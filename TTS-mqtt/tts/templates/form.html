@@ -1,0 +1,32 @@
+<!-- prompt_form.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Form Title</title>
+</head>
+<body>
+
+<h2>Your Form Title</h2>
+
+<form method="post" action="{% url 'tts:prompt' %}"> <!-- Replace 'your_post_url_name' with the actual URL name for your post endpoint -->
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+
+<!-- JavaScript code to reload the page after form submission -->
+<script>
+    function submitAndReload() {
+        // Submit the form
+        document.getElementById("promptForm").submit();
+
+        // Reload the page after a short delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000); // Adjust the delay time as needed (in milliseconds)
+    }
+</script>
+
+</body>
+</html>
