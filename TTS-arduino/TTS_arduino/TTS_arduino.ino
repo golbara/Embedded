@@ -5,6 +5,7 @@
 #include "SD.h"
 #include "String.h"
 #include "XT_DAC_Audio.h";
+#include "HTTPClient.h";
 
 unsigned char PROGMEM Force[40923] = {
     0x52, 0x49, 0x46, 0x46, 0xD3, 0x9F, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45,
@@ -3419,10 +3420,6 @@ unsigned char PROGMEM Force[40923] = {
     0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F,
     0x7F, 0x7F, 0x7F};
 
-#define I2S_BCLK 27
-#define I2S_LRC 26
-#define I2S_DOUT 25
-
 Audio audio;
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -3441,20 +3438,7 @@ const char *mqtt_password = "public";
 const int mqtt_port = 1883;
 
 int counter = 0;
-String receivedMessage;
-
-void stringToHexCharArray(String &str, unsigned char *array)
-{
-  for (size_t i = 0; i < str.length(); ++i)
-  {
-    unsigned char hexValue = static_cast<unsigned char>(str[i]);
-    unsigned char highNibble = hexValue >> 4;
-    unsigned char lowNibble = hexValue & 0x0F;
-
-    array[2 * i] = (highNibble < 10) ? ('0' + highNibble) : ('A' + highNibble - 10);
-    array[2 * i + 1] = (lowNibble < 10) ? ('0' + lowNibble) : ('A' + lowNibble - 10);
-  }
-}
+String receivedMessage, payload;
 
 void setup()
 {
@@ -3468,9 +3452,6 @@ void setup()
     delay(1500);
   }
   Serial.println("Coneected to wifi");
-
-  // audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-  // audio.setVolume(20);
 
   // // setup mqtt
   // client.setServer(mqtt_broker, mqtt_port);
@@ -3506,28 +3487,41 @@ void CallApi(String receivedMessage)
     Serial.println("Requesting TTS from: " + Url);
     delay(5000);
 
-    unsigned char outputArray[2 * Url.length()];
-    stringToHexCharArray(Url, outputArray);
-    for (size_t i = 0; i < 2 * Url.length(); ++i) {
-        Serial.print(Url[i]);
-        Serial.print(' ');
-        Serial.println(outputArray[i]);
+    if (makeRequest(Url))
+    {
+      Serial.println("Request successful");
+      Serial.println(payload.length());
     }
-
-    // const char *hexString = Url.c_str();
-    // unsigned char hexArray[50]; 
-    // for (int i = 0; i < 20; i += 2)
-    // {
-    //   char hexPair[3];
-    //   strncpy(hexPair, &hexString[i], 2);
-    //   hexPair[2] = '\0';
-    //   hexArray[i / 2] = strtol(hexPair, NULL, 16);
-    // }
-    // for(int i = 0; i < 20; i++)
-    //   Serial.println(hexArray[i]);
-
-    // audio.connecttohost(Url.c_str());
+    else
+    {
+      Serial.println("Request failed");
+    }
+    delay(5000);
   }
+}
+
+bool makeRequest(String url)
+{
+  HTTPClient http;
+  http.begin(url);
+  int httpCode = http.GET();
+  if (httpCode > 0)
+  {
+    if (httpCode == HTTP_CODE_OK)
+    {
+      payload = http.getString();
+      Serial.println("payload");
+      return true;
+    }
+    else
+      Serial.printf("HTTP request failed with error code %d\n", httpCode);
+  }
+  else
+  {
+    Serial.println("HTTP request failed");
+  }
+  http.end();
+  return false;
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -3562,6 +3556,5 @@ void loop()
   //   client.publish(topic, receivedMessage.c_str());
   //   receivedMessage = "";
   // }
-  // audio.loop();
   // client.loop();
 }
