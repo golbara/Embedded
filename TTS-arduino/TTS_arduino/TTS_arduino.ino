@@ -3491,6 +3491,16 @@ void CallApi(String receivedMessage)
     {
       Serial.println("Request successful");
       Serial.println(payload.length());
+
+      unsigned char hexArray[2 * payload.length()];
+
+      stringToHexArray(payload, hexArray, sizeof(hexArray));
+      for (int i = 0; i < 2 * payload.length(); i++)
+      {
+        Serial.print("0x");
+        Serial.print(hexArray[i], HEX);
+        Serial.println(" ");
+      }
     }
     else
     {
@@ -3522,6 +3532,23 @@ bool makeRequest(String url)
   }
   http.end();
   return false;
+}
+
+void stringToHexArray(const String &inputString, unsigned char *hexArray, int maxSize)
+{
+  int inputLength = inputString.length();
+  int arrayIndex = 0;
+  for (int i = 0; i < inputLength; i++)
+  {
+    char hexValue[3];
+    snprintf(hexValue, sizeof(hexValue), "%02X", inputString[i]);
+    hexArray[arrayIndex++] = strtol(hexValue, NULL, 16);
+
+    if (arrayIndex >= maxSize)
+    {
+      break;
+    }
+  }
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
