@@ -3423,8 +3423,6 @@ unsigned char PROGMEM Force[40923] = {
 Audio audio;
 WiFiClient espClient;
 PubSubClient client(espClient);
-XT_Wav_Class ForceWithYou(Force);
-XT_DAC_Audio_Class DacAudio(26, 0);
 
 // WiFi
 String ssid = "Mmm";
@@ -3476,6 +3474,15 @@ void setup()
   // }
 }
 
+void intToHexFloat(int value, int &result)
+{
+    float floatValue = static_cast<float>(value);
+    char hexFloat[20];
+    memcpy(&floatValue, &value, sizeof(float));
+    sprintf(hexFloat, "%#x", *(unsigned int *)&floatValue);
+    sscanf(hexFloat, "%x", &result);
+}
+
 void CallApi(String receivedMessage)
 {
   String persianText = receivedMessage;
@@ -3490,17 +3497,19 @@ void CallApi(String receivedMessage)
     if (makeRequest(Url))
     {
       Serial.println("Request successful");
-      Serial.println(payload.length());
-
-      unsigned char hexArray[2 * payload.length()];
-
-      stringToHexArray(payload, hexArray, sizeof(hexArray));
-      for (int i = 0; i < 2 * payload.length(); i++)
+      
+      unsigned char PROGMEM ans[Url.length()];
+      for (int i = 0, k = 0; i < Url.length(); i++)
       {
-        Serial.print("0x");
-        Serial.print(hexArray[i], HEX);
-        Serial.println(" ");
+          int hexFloatInt;
+          intToHexFloat((int)Url[i], hexFloatInt);
+          ans[k++] = hexFloatInt;
       }
+      XT_Wav_Class ForceWithYou(ans);
+      XT_DAC_Audio_Class DacAudio(26, 0);
+      DacAudio.FillBuffer();
+      if (ForceWithYou.Completed)
+        DacAudio.PlayWav(&ForceWithYou);
     }
     else
     {
@@ -3520,7 +3529,6 @@ bool makeRequest(String url)
     if (httpCode == HTTP_CODE_OK)
     {
       payload = http.getString();
-      Serial.println("payload");
       return true;
     }
     else
@@ -3569,9 +3577,9 @@ void callback(char *topic, byte *payload, unsigned int length)
 
 void loop()
 {
-  DacAudio.FillBuffer();
-  if (ForceWithYou.Completed)
-    DacAudio.PlayWav(&ForceWithYou);
+  // DacAudio.FillBuffer();
+  // if (ForceWithYou.Completed)
+  //   DacAudio.PlayWav(&ForceWithYou);
   CallApi("salam");
   delay(10000);
   // client.subscribe(topic);
